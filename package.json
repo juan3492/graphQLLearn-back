@@ -1,0 +1,17 @@
+{
+  "name": "graphqlback",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.9.4",
+    "graphql": "^16.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
