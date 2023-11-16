@@ -4,18 +4,26 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 //
 
 const typeDefs = `
+type PokemonType {
+  name: String
+}
+
+type PokemonStat {
+  base_stat: Int
+  stat: PokemonType
+}
+
+type Pokemon {
+  id: Int
+  name: String
+  types: [PokemonType]
+  stats: [PokemonStat]
+}  
+
   type User {
     id: ID
     name: String!
     email: String!
-  }
-
-  type Pokemon {
-    id: Int
-    id: Pokemon
-    name: String
-    type: Object
-    stats:
   }
 
   type Query {
@@ -27,6 +35,18 @@ const typeDefs = `
 
   type Mutation {
     createUser(name: String, email: String): User
+    addPokemon(input: PokemonInput): Pokemon
+  }
+
+  input PokemonInput {
+    name: String
+    types: [String]
+    stats: [PokemonStatInput]
+  }
+
+  input PokemonStatInput {
+    base_stat: Int
+    stat_name: String
   }
 
 `;
@@ -48,12 +68,26 @@ const resolvers = {
       const user = users.find((user) => user.id == args.id);
       return user;
     },
+    pokemons: () => pokemons,
   },
   Mutation: {
     createUser: (root, args) => {
       const user = { id: users.length + 1, name: args.name, email: args.email };
       users.push(user);
       return user;
+    },
+    addPokemon: (root, args) => {
+      const pokemon = {
+        id: pokemons.length + 1,
+        name: args.input.name,
+        types: args.input.types.map((typeName) => ({ name: typeName })),
+        stats: args.input.stats.map((stat) => ({
+          base_stat: stat.base_stat,
+          stat: { name: stat.stat_name },
+        })),
+      };
+      pokemons.push(pokemon);
+      return pokemon;
     },
   },
 };
