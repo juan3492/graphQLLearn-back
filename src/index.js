@@ -18,24 +18,16 @@ type Pokemon {
   name: String
   types: [PokemonType]
   stats: [PokemonStat]
-}  
-
-  type User {
-    id: ID
-    name: String!
-    email: String!
-  }
+}
 
   type Query {
     hello: String,
-    users: [User]
-    user(id: ID): User
     pokemons: [Pokemon]
   }
 
   type Mutation {
-    createUser(name: String, email: String): User
     addPokemon(input: PokemonInput): Pokemon
+    deletePokemon(id: ID!): Pokemon
   }
 
   input PokemonInput {
@@ -51,34 +43,19 @@ type Pokemon {
 
 `;
 
-const users = [
-  { id: 1, name: "lalo", email: "la@lo.com" },
-  { id: 2, name: "lalo1", email: "la1@lo.com" },
-  { id: 3, name: "lalo2", email: "la2@lo.com" },
-];
 
 const pokemons = [];
+let idCounter = 0;
 
 const resolvers = {
   Query: {
     hello: () => "Hello world!",
-    users: () => users,
-    user: (root, args) => {
-      console.log("se ha buscado un user");
-      const user = users.find((user) => user.id == args.id);
-      return user;
-    },
     pokemons: () => pokemons,
   },
   Mutation: {
-    createUser: (root, args) => {
-      const user = { id: users.length + 1, name: args.name, email: args.email };
-      users.push(user);
-      return user;
-    },
     addPokemon: (root, args) => {
       const pokemon = {
-        id: pokemons.length + 1,
+        id: idCounter,
         name: args.input.name,
         types: args.input.types.map((typeName) => ({ name: typeName })),
         stats: args.input.stats.map((stat) => ({
@@ -87,7 +64,16 @@ const resolvers = {
         })),
       };
       pokemons.push(pokemon);
+      idCounter++;
       return pokemon;
+    },
+    deletePokemon: (root, args) => {
+      const index = pokemons.findIndex(pokemon => pokemon.id === parseInt(args.id));
+
+      if (index !== -1) {
+        const deletedPokemon = pokemons.splice(index, 1)[0];
+        return deletedPokemon;
+      }
     },
   },
 };
